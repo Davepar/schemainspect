@@ -28,6 +28,24 @@ For instance, the information about a table *books* would be accessed as follows
     >>> [each.name for each in books_table.columns]
     ['id', 'title', 'isbn']
 
+## From Command Line
+
+From `poetry shell`, dump the database schema with:
+
+    schemainspect yaml 'postgresql://<dburl>'
+
+Or print dependencies with:
+
+    schemainspect deps 'postgresql://<dburl>'
+
+If you have a .pgpass file in your $HOME dir, you can make use of that
+so you can avoid putting the password in the connection URL. Example .pgpass:
+
+    localhost:5432:*:yourdbuser:yourdbpassword
+
+Then use this URL in the command:
+
+    postgresql://user@localhost/databasename
 
 ## Documentation
 
