@@ -1,5 +1,11 @@
 import argparse
+import pgpasslib
 import sys
+import yaml
+import getpass
+from sqlalchemy.engine.url import make_url
+from io import StringIO as sio
+from sqlbag import S
 
 from .get import get_inspector
 from .misc import quoted_identifier
@@ -23,10 +29,48 @@ def parse_args(args):
 
     return parser.parse_args(args)
 
+def get_password_from_pgpass(host, port, database, username):
+    if not host:
+        host = 'localhost'
+
+    if not port:
+        port = 5432
+
+    if not username:
+        username = getpass.getuser()
+
+    if not database:
+        database = username
+
+    try:
+        return pgpasslib.getpass(
+            host,
+            port,
+            database,
+            username,
+        )
+    except pgpasslib.FileNotFound:
+        return None
+
+    return None
+
+
+def get_password_from_uri(uri):
+    uri = make_url(uri)
+
+    if not uri.password:
+        password = get_password_from_pgpass(
+            uri.host,
+            uri.port,
+            uri.database,
+            uri.username
+        )
+        if password:
+            uri.set(password=password)
+
+    return uri
 
 def do_deps(db_url):
-    from sqlbag import S
-
     with S(db_url) as s:
         i = get_inspector(s)
         deps = i.deps
@@ -45,7 +89,6 @@ def do_deps(db_url):
         )
 
     deps = [process_row(_) for _ in deps]
-
     rows = t(deps)
 
     if rows:
@@ -55,29 +98,23 @@ def do_deps(db_url):
 
 
 def do_yaml(db_url, include_schemas, exclude_schemas):
-    from sqlbag import S
-
     with S(db_url) as s:
         i = get_inspector(s, include_schemas, exclude_schemas)
         defn = i.encodeable_definition()
 
-    from io import StringIO as sio
-
-    import yaml
-
     x = sio()
-
     yaml.safe_dump(defn, x)
-
     print(x.getvalue())
 
 
 def run(args):
+    db_url = get_password_from_uri(args.db_url)
+
     if args.command == "deps":
-        do_deps(args.db_url)
+        do_deps(db_url)
 
     elif args.command == "yaml":
-        do_yaml(args.db_url, args.include, args.exclude)
+        do_yaml(db_url, args.include, args.exclude)
 
     else:
         raise ValueError("no such command")

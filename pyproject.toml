@@ -10,9 +10,10 @@ repository = "https://github.com/djrobstep/schemainspect"
 homepage = "https://github.com/djrobstep/schemainspect"
 
 [tool.poetry.dependencies]
-python = ">=3.6 <4"
+python = ">=3.6.2 <4"
 sqlalchemy = "*"
 PyYAML = "^6.0"
+pgpasslib = "^1.1.0"
 
 [tool.poetry.dev-dependencies]
 sqlbag = ">=0.1.1616028516"
