@@ -10,17 +10,18 @@ repository = "https://github.com/djrobstep/schemainspect"
 homepage = "https://github.com/djrobstep/schemainspect"
 
 [tool.poetry.dependencies]
-python = ">=3.7,<4"
+python = ">=3.6 <4"
 sqlalchemy = "*"
+PyYAML = "^6.0"
 
 [tool.poetry.dev-dependencies]
 sqlbag = ">=0.1.1616028516"
-pytest = "*"
+pytest = {version="*", python=">=3.5 <4"}
 pytest-cov = "*"
-pytest-clarity = "*"
+pytest-clarity = {version=">=0.3.0-alpha.0", python=">=3.5 <4"}
 psycopg2-binary = "*"
 flake8 = "*"
-isort = "5.10.1"
+isort = {version=">=5", python=">=3.6 <4"}
 migra = "*"
 black = "22.3.0"
 toml = "*"
