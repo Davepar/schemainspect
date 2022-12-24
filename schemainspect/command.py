@@ -18,6 +18,8 @@ def parse_args(args):
         "yaml", help="Export schema definition as YAML"
     )
     parser_deps2.add_argument("db_url", help="URL")
+    parser_deps2.add_argument("--include", help="Include schemas", nargs="*")
+    parser_deps2.add_argument("--exclude", help="Exclude schemas", nargs="*")
 
     return parser.parse_args(args)
 
@@ -52,11 +54,11 @@ def do_deps(db_url):
         print("No dependencies found.")
 
 
-def do_yaml(db_url):
+def do_yaml(db_url, include_schemas, exclude_schemas):
     from sqlbag import S
 
     with S(db_url) as s:
-        i = get_inspector(s)
+        i = get_inspector(s, include_schemas, exclude_schemas)
         defn = i.encodeable_definition()
 
     from io import StringIO as sio
@@ -75,10 +77,10 @@ def run(args):
         do_deps(args.db_url)
 
     elif args.command == "yaml":
-        do_yaml(args.db_url)
+        do_yaml(args.db_url, args.include, args.exclude)
 
     else:
-        raise ValueError("no such commend")
+        raise ValueError("no such command")
 
 
 def do_command():  # pragma: no cover
